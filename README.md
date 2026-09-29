@@ -1,6 +1,8 @@
 # 온스하이브 기업 웹사이트
 
-승인된 P-0001 시안을 기반으로 만든 회사소개·사업분야·성과·연혁·채용·문의 웹사이트입니다.
+승인된 P-0005 시안을 기반으로 만든 Commerce & Brand Operator 기업
+웹사이트입니다. PET COMMERCE와 PRINT COMMERCE를 같은 위계로 소개하고
+상품기획부터 고객·재구매까지의 운영 체계를 보여줍니다.
 정적 HTML, TypeScript, CSS와 Vite를 사용합니다. 로고·그래픽·글꼴을 자체 호스팅하며 런타임 CDN은 사용하지 않습니다.
 
 ## 실행
@@ -28,25 +30,39 @@ npm run preview
 | 대상 | 파일 |
 |---|---|
 | 홈 | `src/index.html` |
-| 회사소개·사업·연혁·채용·문의 | `src/about/`, `src/business/`, `src/history/`, `src/careers/`, `src/contact/` |
+| 회사·사업·역량·채용·제휴 | `src/company/`, `src/business/`, `src/capabilities/`, `src/careers/`, `src/partnership/` |
+| 이전 주소 호환 | `src/about/`, `src/history/`, `src/contact/` |
 | 공통 메뉴·사업자정보 | `src/partials/header.html`, `src/partials/footer.html` |
 | 색상·여백·반응형 | `src/styles.css` |
-| 모바일 메뉴·패럴랙스·모션 설정 | `src/main.ts` |
-| 홈 전체 배경 아스키 파도 | `src/ascii-wave.ts` |
+| 모바일 메뉴·운영 단계 탭·제휴 메일 | `src/main.ts` |
+| 상품·운영 이미지 | `public/images/commerce/` |
 | 로고·파비콘·글꼴 라이선스 | `public/` |
 
-[콘텐츠 수정 안내](docs/content-guide.md)에 콘텐츠 근거, 채용 추가 방법과 배포 시 확인할 설정을 정리했습니다.
+[콘텐츠 수정 안내](docs/content-guide.md), [이미지 제작 규칙](docs/image-workflow.md),
+[버전 및 롤백 절차](docs/versioning-and-rollback.md)에 유지보수 기준을 정리했습니다.
 
-연혁과 채용은 사용자 확인에 따라 확정 예정으로 표시했습니다. 전화번호는 제거했으며, 일반 문의 이메일과 전자세금계산서 전용 이메일을 구분합니다. 사업자정보는 2026-07-01 사업자등록증 기준입니다.
+미확정 연혁·채용·성과 정보는 임의로 만들지 않고 확인 중으로 표시합니다.
+전화번호는 제거했으며, 일반 문의·제휴·전자세금계산서 이메일을 구분합니다.
+사업자정보는 2026-07-01 사업자등록증 기준입니다.
 
 공개 사이트: [onshive.kr](https://onshive.kr) · [Cloudflare 배포 및 가비아 도메인 연결](docs/cloudflare-domain-guide.md)
 
 ## 접근성과 모션
 
-- 키보드 사용이 가능한 메뉴와 네이티브 펼침 영역
-- 기기의 모션 감소 설정 및 방문자별 애니메이션 일시정지 지원
+- 키보드 사용이 가능한 메뉴와 운영 단계 탭
+- 기기의 모션 감소 설정 지원
 - JavaScript가 없어도 본문·링크·채용 안내 이용 가능
 - 320px부터 넓은 데스크톱까지 반응형 레이아웃
+
+## 버전
+
+- `v1.0.0`: P-0005 리디자인 이전 사이트
+- `v2.0.0`: 승인된 Commerce & Brand Operator 리디자인
+
+원격 저장소는
+[adstore3869/onshive-business-web](https://github.com/adstore3869/onshive-business-web)입니다.
+과거 버전 확인과 안전한 복구 명령은
+[버전 및 롤백 절차](docs/versioning-and-rollback.md)를 따릅니다.
 
 <!-- leerness:project-readme:start -->
 ## Leerness Project Harness

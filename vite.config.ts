@@ -18,11 +18,10 @@ export default defineConfig({
           fromRoot("./src/partials/header.html"),
           "utf8",
         );
-        if (page !== "home")
-          header = header.replace(
-            `href="/${page}/"`,
-            `href="/${page}/" aria-current="page"`,
-          );
+        header = header.replace(
+          `data-page-link="${page}"`,
+          `data-page-link="${page}" aria-current="page"`,
+        );
         const footer = readFileSync(
           fromRoot("./src/partials/footer.html"),
           "utf8",
@@ -41,10 +40,13 @@ export default defineConfig({
       input: Object.fromEntries(
         [
           "index.html",
+          "company/index.html",
           "about/index.html",
           "business/index.html",
+          "capabilities/index.html",
           "history/index.html",
           "careers/index.html",
+          "partnership/index.html",
           "contact/index.html",
           "404.html",
         ].map((path) => [path, fromRoot(`./src/${path}`)]),

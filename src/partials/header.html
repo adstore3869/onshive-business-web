@@ -1,27 +1,40 @@
-<header class="header">
-  <div class="header-inner wrap">
-    <a href="/" aria-label="온스하이브 홈"
-      ><img
-        class="logo"
-        src="/logo.png"
-        width="873"
-        height="212"
-        alt="온스하이브 ONSHIVE"
-    /></a>
+<header class="site-header">
+  <div class="header-bar">
+    <a class="brand" href="/" aria-label="ONSHIVE 홈">
+      <strong>ONSHIVE</strong>
+      <span>COMMERCE &amp; BRAND OPERATOR</span>
+    </a>
     <button
       class="menu-button"
-      aria-label="메뉴 열기"
+      type="button"
       aria-expanded="false"
-      aria-controls="main-nav"
+      aria-controls="primary-navigation"
     >
-      <span></span><span></span>
+      MENU
     </button>
-    <nav class="nav" id="main-nav" aria-label="주 메뉴">
-      <a href="/about/">회사소개</a><a href="/business/">사업분야</a
-      ><a href="/history/">주요 성과·연혁</a><a href="/careers/">채용</a
-      ><a class="nav-contact" href="/contact/"
-        >프로젝트 문의 <span class="arr" aria-hidden="true">↗</span></a
-      >
+    <nav
+      class="primary-navigation"
+      id="primary-navigation"
+      aria-label="주 메뉴"
+    >
+      <ul>
+        <li><a href="/company/" data-page-link="company">COMPANY</a></li>
+        <li><a href="/business/" data-page-link="business">BUSINESS</a></li>
+        <li>
+          <a href="/capabilities/" data-page-link="capabilities"
+            >CAPABILITIES</a
+          >
+        </li>
+        <li><a href="/careers/" data-page-link="careers">CAREERS</a></li>
+        <li>
+          <a
+            class="navigation-cta"
+            href="/partnership/"
+            data-page-link="partnership"
+            >PARTNERSHIP</a
+          >
+        </li>
+      </ul>
     </nav>
   </div>
 </header>
