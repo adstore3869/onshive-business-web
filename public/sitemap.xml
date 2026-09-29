@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://onshive.kr/</loc></url>
-  <url><loc>https://onshive.kr/company/</loc></url>
+  <url><loc>https://onshive.kr/about/</loc></url>
   <url><loc>https://onshive.kr/business/</loc></url>
-  <url><loc>https://onshive.kr/capabilities/</loc></url>
+  <url><loc>https://onshive.kr/history/</loc></url>
   <url><loc>https://onshive.kr/careers/</loc></url>
-  <url><loc>https://onshive.kr/partnership/</loc></url>
+  <url><loc>https://onshive.kr/contact/</loc></url>
 </urlset>

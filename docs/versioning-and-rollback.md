@@ -9,6 +9,7 @@
 |---|---|
 | `v1.0.0` | P-0005 리디자인 이전 운영 소스 기준점 |
 | `v2.0.0` | 승인된 Commerce & Brand Operator 리디자인 |
+| `v2.1.0` | v1.0.0 원본 스타일 복원과 검증된 커머스 콘텐츠 보강 |
 
 모든 운영 변경은 검증된 커밋과 annotated tag를 함께 남깁니다. `main`에는
 검증된 버전만 반영하며 force push를 사용하지 않습니다.
@@ -53,6 +54,18 @@ npm run build
 
 검증 없이 `git reset --hard`, 태그 이동 또는 force push로 원격 이력을
 덮어쓰지 않습니다.
+
+## 현재 원본 스타일 버전으로 전환
+
+`v2.1.0`은 `v2.0.0` 이력을 지우지 않고 새 커밋으로 원본 스타일을 복원한
+버전입니다. 별도 검토 브랜치에서 확인할 수 있습니다.
+
+```sh
+git fetch origin --tags
+git switch -c review/original-style v2.1.0
+npm ci
+npm run build
+```
 
 ## 배포 롤백
 
