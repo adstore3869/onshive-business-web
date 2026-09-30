@@ -4,10 +4,12 @@ import "./styles.css";
 import "./home-scenes.css";
 import "./visual-pages.css";
 import "./content-pages.css";
+import "./editorial-content.css";
 import "./readability.css";
 import { createAsciiWave } from "./ascii-wave";
 import { createScrollScenes } from "./scroll-scenes";
 import { setupPartnershipForm } from "./partnership-form";
+import { setupReveals } from "./reveal";
 
 setupPartnershipForm();
 
@@ -52,6 +54,7 @@ if (menuButton && navigation) {
 }
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+setupReveals(root, reducedMotion);
 
 const layers = [
   ...document.querySelectorAll<HTMLElement>("[data-parallax], [data-depth]"),
@@ -74,6 +77,7 @@ const drawScrollScenes = createScrollScenes(motionPaused);
 
 function drawParallax(): void {
   frame = null;
+  if (document.hidden && !motionPaused()) return;
   const viewportHeight = window.innerHeight;
   const amplitude = desktop.matches ? 1 : 0.45;
 
@@ -96,49 +100,37 @@ function drawParallax(): void {
 }
 
 function scheduleParallax(): void {
-  if (frame === null) frame = requestAnimationFrame(drawParallax);
+  if (!document.hidden && frame === null)
+    frame = requestAnimationFrame(drawParallax);
 }
-
-const revealElements = [...document.querySelectorAll<HTMLElement>(".reveal")];
-let revealObserver: IntersectionObserver | null = null;
 
 function syncMotion(): void {
   const paused = motionPaused();
   root.classList.toggle("motion-paused", paused);
-  root.classList.toggle("js-motion", !paused && revealObserver !== null);
+  root.classList.toggle("editorial-scroll-ready", !paused);
 
   if (paused) {
-    // Mark everything visible so resuming never hides already readable content.
-    revealElements.forEach((element) => element.classList.add("visible"));
+    // 설정 전환 즉시 이미지 위치를 초기화하고 이미 예약된 프레임도 정리한다.
+    if (frame !== null) cancelAnimationFrame(frame);
+    drawParallax();
+  } else {
+    scheduleParallax();
   }
   asciiWave?.sync();
-  scheduleParallax();
-}
-
-if ("IntersectionObserver" in window) {
-  try {
-    revealObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            revealObserver?.unobserve(entry.target);
-          }
-        }
-      },
-      { threshold: 0.12 },
-    );
-    revealElements.forEach((element) => revealObserver?.observe(element));
-  } catch {
-    // Visibility is the default if the browser cannot initialize reveals.
-    revealObserver = null;
-  }
 }
 
 reducedMotion.addEventListener("change", syncMotion);
 window.addEventListener("scroll", scheduleParallax, { passive: true });
 window.addEventListener("resize", scheduleParallax, { passive: true });
 window.addEventListener("pageshow", scheduleParallax);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    if (frame !== null) cancelAnimationFrame(frame);
+    frame = null;
+  } else {
+    scheduleParallax();
+  }
+});
 
 // Page navigation is rendered into the HTML; only the about narrative follows scrolling.
 const chapters = [...document.querySelectorAll<HTMLElement>("[data-chapter]")];

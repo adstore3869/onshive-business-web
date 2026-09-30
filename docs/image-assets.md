@@ -13,7 +13,7 @@ screens, product labels, prices and logos were not changed. Ivory frames, balanc
 contain crops and factual captions apply the approved site tone without fabricating
 products. Deck prices/assortment are historical reference, not a live catalog.
 
-| Source / deck page | Public copy | Dimensions / bytes | Current placement |
+| Source / deck page | Public copy | Dimensions / bytes | v2.2.0 / v2.2.1 placement (v2.2.2 retained only) |
 |---|---|---|---|
 | `tmp/p5-assets/product-portfolio.webp`, p34 | `public/images/commerce/product-portfolio.webp` | 1200×1000 / 75,336 | Home PET chapter, Business PET |
 | `tmp/p5-assets/store-screen.webp`, p33 | `public/images/commerce/store-screen.webp` | 646×1400 / 84,234 | Business own-store example |
@@ -28,6 +28,32 @@ Source and public copy SHA-256 are identical:
 PRINT, exhibitions and workplace are described with editorial operational panels,
 not fabricated warehouse/employee/product photographs. New actual product images
 must follow `docs/image-workflow.md` and active rule R-0001.
+
+## P-0009 / v2.2.2 — approved generated category concepts
+
+Created with built-in image_gen and approved by the user on 2026-09-30, including
+the combined editorial/parallax preview. These are generic category concepts, not
+actual Moguchon products, PRINT SKUs, company customers, employees or locations.
+The user supplied no new actual product photograph to preserve in this request.
+Each of the six placements visibly states “생성 콘셉트 · 실제 상품/고객 아님” or
+“AI 생성 · 실제 상품 사진 아님”; the customer image is not presented as a testimonial or event proof.
+Existing deck facts and their dates/scopes are unchanged and are not derived from imagery.
+
+| Public copy | Original generator artifact ID | Dimensions / bytes | Placement |
+|---|---|---|---|
+| `public/images/commerce/pet-commerce.webp` | `exec-498d0580-dd24-463a-8f4f-a05401f12e64.png` | 1536×1024 / 160,170 | Home PET / Business PET |
+| `public/images/commerce/print-commerce.webp` | `exec-d1777f82-46eb-4549-be7a-6f3ff97590a7.png` | 1536×1024 / 106,502 | Home PRINT / Business PRINT |
+| `public/images/commerce/pet-customer.webp` | `exec-7acbc245-e8c5-46c7-9a52-973972a5a367.png` | 1536×1024 / 129,336 | Home customer / Business own-store & content |
+
+The original PNGs and approved self-contained preview are preserved locally under
+`.leerness/previews/P-0009-assets/`. No new raster generation/edit, resizing or crop
+was performed during implementation. WebPs match the approved preview assets
+byte-for-byte; quality88/method6 format encoding only. The public site loads these
+WebPs itself, not the private preview or PNGs. The three earlier screenshots remain
+in `public/images/commerce/` for rollback and are not displayed in the new home/business.
+
+Full generation prompts, original/result hashes, approval and placements:
+[`image-provenance-p0009.json`](image-provenance-p0009.json).
 
 ## brand-connections
 

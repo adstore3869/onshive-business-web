@@ -3,6 +3,8 @@
 홈 본문은 `src/index.html`, 개별 페이지는 `src/<페이지>/index.html`입니다.
 원본 스타일 3종은 유지하고 승인된 보강 레이아웃은 `src/content-pages.css`에
 분리했습니다. 공통 메뉴·모션은 `src/main.ts`, 이메일 초안은 `src/partnership-form.ts`입니다.
+P-0009의 홈03/04/05 편집 구간과 사업 이미지 프레임은 `src/editorial-content.css`,
+승인 글자 크기18/17/15px는 `src/readability.css`, 첫 등장·초점 대응은 `src/reveal.ts`입니다.
 
 ## 2.2.0 주요 메뉴
 
@@ -69,6 +71,10 @@ JavaScript가 없어도 기존 이메일 링크와 본문이 표시됩니다. �
 - P-0004 생성 콘셉트: `public/images/brand-connections.webp`(회사소개의 보조 이미지).
   미사용 `creative-materials.webp`는 재사용/복구용으로 보존. 생성 원본과 프롬프트,
   P-0006 실제 자료 캡처 3종의 원본·해시는 [이미지 안내](image-assets.md)에 기록.
+- P-0009 생성3종: `pet-commerce.webp`, `print-commerce.webp`, `pet-customer.webp`를
+  홈·사업에 각각 배치합니다. 실제 상품·고객 사진이 아니라는 캡션을 유지합니다.
+  [제작 기록](image-provenance-p0009.json)에 승인·프롬프트·해시를 기록했으며,
+  앞선 캡처3종은 공개 표시에서 제외하되 복구용 파일은 보존합니다.
 - 홈 추가 섹션 스타일은 `src/home-scenes.css`, 하위 페이지 시각 요소는 `src/visual-pages.css`에서 관리합니다. 이미지 크기·비율과 alt를 유지하세요.
 
 - 로고: `public/logo.png`, 원본 비율 유지.
@@ -78,7 +84,12 @@ JavaScript가 없어도 기존 이메일 링크와 본문이 표시됩니다. �
 
 ## 모션
 
-`src/scroll-scenes.ts`는 이미지의 `data-image-parallax`, 가로 문자의 `data-scroll-x`, 홈 사업 소개의 `data-service-step`을 처리합니다. `src/main.ts`의 기존 스크롤 프레임과 모션 설정을 공유합니다. 이미지가 패널보다 크게 배치된 여유 안에서만 이동합니다.
+`src/scroll-scenes.ts`는 이미지의 `data-image-parallax`, 가로 문자의 `data-scroll-x`, 홈 운영 업무의 `data-service-step`을 처리합니다. `src/main.ts`의 기존 단일 스크롤 프레임과 모션 설정을 공유합니다. 이미지가 패널보다 크게 배치된 여유 안에서만 이동합니다. 편집 이미지 여유는 PC44px/모바일12px이며 실제 이동은 여유·프레임8%·data 값 중 최솟값 이내입니다.
+
+`src/reveal.ts`의 `.reveal`과 `data-editorial-reveal`은 첫 진입에서 한 번만 표시합니다.
+키보드 초점은 즉시 표시하며 이미 읽은 문장을 다시 숨기지 않습니다. Observer
+부재/실패 또는 모션 감소에서는 본문을 표시합니다. 시안 전용 라우터나 바는 실제
+페이지에 포함하지 않습니다. 외부 모션 라이브러리·분석 추적은 추가하지 않았습니다.
 
 별도의 방문자 모션 토글이나 브라우저 저장 상태는 없습니다. 기기의 `prefers-reduced-motion` 설정이 켜져 있으면 아스키 파도·패럴랙스·등장 효과를 줄이고 콘텐츠를 즉시 표시합니다.
 
@@ -86,7 +97,9 @@ JavaScript가 없어도 기존 이메일 링크와 본문이 표시됩니다. �
 
 ## 배포 시
 
-`npm test`는 빌드와 23개의 산출물·메일 모듈 회귀 검사를 수행합니다.
+`npm test`는 빌드와 산출물·메일25, 실제 ASCII19, 실제 편집·스크롤34 회귀 검사를 수행합니다.
+편집 검사는 프로젝트의 기존 TypeScript 컴파일러로 `tmp/editorial-module-test/`에
+비공개 테스트 산출물만 생성합니다. production 소스를 쓰거나 배포하지 않습니다.
 실제 메일 전송이나 외부 앱 실행은 하지 않습니다. UI 반응형·모션은 별도 브라우저로 검증하세요.
 
 `npm run build` 후 **dist 폴더만** 정적 호스팅에 업로드합니다. 프로젝트 전체를 업로드하지 않습니다. canonical, og:url과 사이트맵은 지정 도메인 `https://onshive.kr` 기준입니다. Pages 프로젝트와 배포 명령은 [배포 안내서](cloudflare-domain-guide.md)에 있습니다.

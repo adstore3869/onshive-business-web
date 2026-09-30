@@ -82,26 +82,19 @@ probe("Main navigation uses five approved destinations and active page", () => {
   }
 });
 probe(
-  "Home nine sections: two businesses, seven capabilities, six flow steps",
+  "Home nine sections: two businesses, seven capabilities, three editorial work rows",
   () => {
     assert.equal(
-      (source["index.html"].match(/data-service-step=/g) || []).length,
-      2,
+      (source["index.html"].match(/data-service-step\b/g) || []).length,
+      3,
     );
     assert.equal((source["index.html"].match(/<section\b/g) || []).length, 9);
     assert.equal(
       (source["capabilities/index.html"].match(/<h3>/g) || []).length,
       13,
     );
-    for (const name of [
-      "DISCOVER",
-      "PLAN",
-      "SOURCE",
-      "SELL",
-      "GROW",
-      "DELIVER",
-    ])
-      assert.ok(source["index.html"].includes(`<h3>${name}</h3>`));
+    for (const name of ["판매 준비", "판매 운영", "구매 이후"])
+      assert.ok(source["index.html"].includes(`<dt>${name}</dt>`));
     for (const id of ["pet", "print"])
       assert.ok(source["business/index.html"].includes(`id="${id}"`));
   },
@@ -111,7 +104,7 @@ probe(
   () => {
     const home = compact(source["index.html"]);
     assert.match(home, /2026년 1–6월 참가 실적/);
-    assert.match(home, /자사몰 포함 10개 채널/);
+    assert.match(compact(source["business/index.html"]), /자사몰 포함 10개 채널/);
     assert.match(home, /멍수무강 상품 포트폴리오/);
     const careers = compact(source["careers/index.html"]);
     assert.match(careers, /이 페이지에 게시된 채용 공고는 없습니다/);
@@ -270,11 +263,11 @@ probe(
     assert.ok(fs.existsSync(path.join(root, "dist/404.html")));
   },
 );
-probe("Package and lock use the same 2.2.1 version", () => {
-  assert.equal(JSON.parse(read("package.json")).version, "2.2.1");
+probe("Package and lock use the same 2.2.2 version", () => {
+  assert.equal(JSON.parse(read("package.json")).version, "2.2.2");
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(lock.version, "2.2.1");
-  assert.equal(lock.packages[""].version, "2.2.1");
+  assert.equal(lock.version, "2.2.2");
+  assert.equal(lock.packages[""].version, "2.2.2");
 });
 
 // Compile the actual production module, not a copied implementation.
@@ -430,6 +423,7 @@ try {
   }
 }
 await import("./verify-ascii.mjs");
+await import("./verify-editorial.mjs");
 console.log(
   JSON.stringify(
     { passed: results.length, failed: 0, checks: results },

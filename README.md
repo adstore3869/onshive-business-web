@@ -1,6 +1,8 @@
 # 온스하이브 기업 웹사이트
 
-승인된 P-0006을 P-0001 원본 스타일로 구현한 회사소개·PET/PRINT 사업·운영역량·채용·파트너십 웹사이트입니다. 이전 연혁 페이지도 보존합니다.
+승인된 P-0006 콘텐츠와 P-0009 편집·생성 이미지·패럴랙스를 P-0001 원본 스타일로
+구현한 회사소개·PET/PRINT 사업·운영역량·채용·파트너십 웹사이트입니다. 이전 연혁
+페이지도 보존합니다. 현재 로컬/Git v2.2.2, 공개 사이트 v2.2.1이며 공개 배포는 별도입니다.
 정적 HTML, TypeScript, CSS와 Vite를 사용합니다. 로고·그래픽·글꼴을 자체 호스팅하며 런타임 CDN은 사용하지 않습니다.
 
 ## 실행
@@ -32,8 +34,10 @@ npm run preview
 | 회사소개·사업·역량·연혁·채용·파트너십 | `src/about/`, `src/business/`, `src/capabilities/`, `src/history/`, `src/careers/`, `src/contact/` |
 | 공통 메뉴·사업자정보 | `src/partials/header.html`, `src/partials/footer.html` |
 | 원본 스타일 / 승인된 콘텐츠 확장 | `src/styles.css`, `src/home-scenes.css`, `src/visual-pages.css` / `src/content-pages.css` |
+| 편집형 홈·사업 / 가독성 | `src/editorial-content.css` / `src/readability.css` |
 | 문의 메일 초안 / 회귀 검사 | `src/partnership-form.ts` / `scripts/verify-site.mjs` |
 | 모바일 메뉴·패럴랙스·모션 설정 | `src/main.ts` |
+| 1회 등장·초점·Observer fallback / 실제 모듈 회귀 | `src/reveal.ts` / `scripts/verify-editorial.mjs` |
 | 홈 전체 배경 아스키 파도 | `src/ascii-wave.ts` |
 | 로고·파비콘·글꼴 라이선스 | `public/` |
 
@@ -58,7 +62,9 @@ npm run preview
 - `v1.0.0`: 원본 P-0001 스타일 기준점
 - `v2.0.0`: Commerce & Brand Operator 전면 리디자인 보존본
 - `v2.1.0`: 원본 스타일 복원 + PET·PRINT·운영 콘텐츠 보강본
-- `v2.2.0`: 승인 P-0006 콘텐츠 확장·7역량·메일 초안 (공개 배포 제외)
+- `v2.2.0`: 승인 P-0006 콘텐츠 확장·7역량·메일 초안
+- `v2.2.1`: 승인 본문18/17·보조15px와 ASCII4종 (현재 공개 버전)
+- `v2.2.2`: 승인 생성 이미지3종·편집형 구성·패럴랙스 (로컬/Git, 공개 미배포)
 
 강제 초기화 없이 태그와 revert로 복구합니다. 자세한 절차는
 [버전 관리와 롤백](docs/versioning-and-rollback.md)을 참고하세요.
