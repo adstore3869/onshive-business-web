@@ -2,7 +2,32 @@
 
 Created 2026-09-25 with the built-in image_gen tool. Original artifacts copied to output/imagegen; WebP copies use format compression only, without content edits. Concept art, not actual offices/products/client work.
 
-P-0004 approved 2026-09-25. Production copies: `public/images/brand-connections.webp` (115,010 bytes) and `public/images/creative-materials.webp` (91,240 bytes). Both preserve the generated 1536×1024 dimensions. The connection artwork appears on home/about; the materials artwork appears on home/business/careers. Original prompts below are preserved for future revisions.
+P-0004 approved 2026-09-25. Preserved production copies: `public/images/brand-connections.webp` (115,010 bytes) and `public/images/creative-materials.webp` (91,240 bytes). Both preserve the generated 1536×1024 dimensions. At that release the connection artwork appeared on home/about, and materials on home/business/careers. P-0006 now uses the connection artwork only on Company as explicitly labeled brand concept art; the unused materials asset is retained for rollback/reuse. Original prompts below are preserved for future revisions.
+
+## P-0006 / v2.2.0 — provided operational captures
+
+Approved 2026-09-30. These three captures already existed in the provided company
+deck and in the approved P-0006 preview. This update received no new product image
+attachment, so no new raster generation or editing was performed. The original
+screens, product labels, prices and logos were not changed. Ivory frames, balanced
+contain crops and factual captions apply the approved site tone without fabricating
+products. Deck prices/assortment are historical reference, not a live catalog.
+
+| Source / deck page | Public copy | Dimensions / bytes | Current placement |
+|---|---|---|---|
+| `tmp/p5-assets/product-portfolio.webp`, p34 | `public/images/commerce/product-portfolio.webp` | 1200×1000 / 75,336 | Home PET chapter, Business PET |
+| `tmp/p5-assets/store-screen.webp`, p33 | `public/images/commerce/store-screen.webp` | 646×1400 / 84,234 | Business own-store example |
+| `tmp/p5-assets/content-hub.webp`, p35 | `public/images/commerce/content-hub.webp` | 1200×675 / 42,096 | Home In Action |
+
+Source and public copy SHA-256 are identical:
+
+- portfolio: `5c21e8818b64a47e5b77a7d55225617ebc4f5667f569ce7435c0f9f77312098d`
+- store: `8689e486597425cfffd104b1bd18696cd7f119a25953da60dfd67ef1736b8baf`
+- hub: `c61dd93007ca09e68ab2fa8029258efb2d502220ec2879257c190be630079062`
+
+PRINT, exhibitions and workplace are described with editorial operational panels,
+not fabricated warehouse/employee/product photographs. New actual product images
+must follow `docs/image-workflow.md` and active rule R-0001.
 
 ## brand-connections
 

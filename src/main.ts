@@ -3,8 +3,12 @@ import "@fontsource-variable/archivo";
 import "./styles.css";
 import "./home-scenes.css";
 import "./visual-pages.css";
+import "./content-pages.css";
 import { createAsciiWave } from "./ascii-wave";
 import { createScrollScenes } from "./scroll-scenes";
+import { setupPartnershipForm } from "./partnership-form";
+
+setupPartnershipForm();
 
 const root = document.documentElement;
 const menuButton = document.querySelector<HTMLButtonElement>(".menu-button");

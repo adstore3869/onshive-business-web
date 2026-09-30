@@ -1,6 +1,6 @@
 {
   "name": "onshive-web",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "type": "module",
   "description": "온스하이브 기업 소개 웹사이트",
@@ -8,6 +8,7 @@
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "typecheck": "tsc --noEmit",
     "lint": "prettier --check src vite.config.ts tsconfig.json package.json",
+    "test": "npm run build && node scripts/verify-site.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4174 --strictPort",
     "format": "prettier --write src vite.config.ts tsconfig.json package.json"

@@ -43,6 +43,7 @@ export default defineConfig({
           "index.html",
           "about/index.html",
           "business/index.html",
+          "capabilities/index.html",
           "history/index.html",
           "careers/index.html",
           "contact/index.html",

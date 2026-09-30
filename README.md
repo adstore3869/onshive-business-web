@@ -1,6 +1,6 @@
 # 온스하이브 기업 웹사이트
 
-승인된 P-0001 원본 스타일을 유지하면서 PET·PRINT 커머스와 운영 역량 콘텐츠를 보강한 회사소개·사업분야·성과·연혁·채용·문의 웹사이트입니다.
+승인된 P-0006을 P-0001 원본 스타일로 구현한 회사소개·PET/PRINT 사업·운영역량·채용·파트너십 웹사이트입니다. 이전 연혁 페이지도 보존합니다.
 정적 HTML, TypeScript, CSS와 Vite를 사용합니다. 로고·그래픽·글꼴을 자체 호스팅하며 런타임 CDN은 사용하지 않습니다.
 
 ## 실행
@@ -16,6 +16,7 @@ npm run dev
 
 ```sh
 npm run typecheck
+npm test
 npm run build
 npm run preview
 ```
@@ -28,22 +29,26 @@ npm run preview
 | 대상 | 파일 |
 |---|---|
 | 홈 | `src/index.html` |
-| 회사소개·사업·연혁·채용·문의 | `src/about/`, `src/business/`, `src/history/`, `src/careers/`, `src/contact/` |
+| 회사소개·사업·역량·연혁·채용·파트너십 | `src/about/`, `src/business/`, `src/capabilities/`, `src/history/`, `src/careers/`, `src/contact/` |
 | 공통 메뉴·사업자정보 | `src/partials/header.html`, `src/partials/footer.html` |
-| 색상·여백·반응형 | `src/styles.css` |
+| 원본 스타일 / 승인된 콘텐츠 확장 | `src/styles.css`, `src/home-scenes.css`, `src/visual-pages.css` / `src/content-pages.css` |
+| 문의 메일 초안 / 회귀 검사 | `src/partnership-form.ts` / `scripts/verify-site.mjs` |
 | 모바일 메뉴·패럴랙스·모션 설정 | `src/main.ts` |
 | 홈 전체 배경 아스키 파도 | `src/ascii-wave.ts` |
 | 로고·파비콘·글꼴 라이선스 | `public/` |
 
 [콘텐츠 수정 안내](docs/content-guide.md)에 콘텐츠 근거, 채용 추가 방법과 배포 시 확인할 설정을 정리했습니다.
 
-연혁과 채용은 확인되지 않은 날짜·공고를 만들지 않고 확정 예정으로 표시했습니다. 전화번호는 제거했으며, 사업 제휴·일반 문의·전자세금계산서 이메일을 구분합니다. 사업자정보는 2026-07-01 사업자등록증 기준입니다.
+확인된 활동만 날짜로 표시하고 채용 여부를 추정하지 않습니다. 회사 전화번호는
+제거했으며, 사업 제휴·일반 문의·전자세금계산서 이메일을 구분합니다.
+문의 양식은 메일 앱 초안만 만들고 사이트에서 접수·저장·전송하지 않습니다.
+사업자정보는 2026-07-01 사업자등록증 기준입니다.
 
 공개 사이트: [onshive.kr](https://onshive.kr) · [Cloudflare 배포 및 가비아 도메인 연결](docs/cloudflare-domain-guide.md)
 
 ## 접근성과 모션
 
-- 키보드 사용이 가능한 메뉴와 네이티브 펼침 영역
+- 키보드 사용이 가능한 메뉴와 네이티브 입력 검증
 - 기기의 모션 감소 설정을 따르고 화면 밖·숨김 탭에서는 모션 자동 정지
 - JavaScript가 없어도 본문·링크·채용 안내 이용 가능
 - 320px부터 넓은 데스크톱까지 반응형 레이아웃
@@ -53,6 +58,7 @@ npm run preview
 - `v1.0.0`: 원본 P-0001 스타일 기준점
 - `v2.0.0`: Commerce & Brand Operator 전면 리디자인 보존본
 - `v2.1.0`: 원본 스타일 복원 + PET·PRINT·운영 콘텐츠 보강본
+- `v2.2.0`: 승인 P-0006 콘텐츠 확장·7역량·메일 초안 (공개 배포 제외)
 
 강제 초기화 없이 태그와 revert로 복구합니다. 자세한 절차는
 [버전 관리와 롤백](docs/versioning-and-rollback.md)을 참고하세요.
