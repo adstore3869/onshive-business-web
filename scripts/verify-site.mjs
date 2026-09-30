@@ -126,13 +126,12 @@ probe(
   },
 );
 probe(
-  "Original palette and all three CSS/motion modules remain v1.0.0-identical",
+  "Original palette, all three CSS files and scroll remain v1.0.0-identical",
   () => {
     for (const file of [
       "src/styles.css",
       "src/home-scenes.css",
       "src/visual-pages.css",
-      "src/ascii-wave.ts",
       "src/scroll-scenes.ts",
     ]) {
       const baseline = execFileSync("git", ["show", `v1.0.0:${file}`], {
@@ -147,6 +146,65 @@ probe(
     }
     assert.ok(!read("src/content-pages.css").includes("119px"));
     assert.ok(!read("src/content-pages.css").includes("103px"));
+  },
+);
+probe(
+  "Approved ASCII variants preserve original renderer, characters and mask",
+  () => {
+    const wave = read("src/ascii-wave.ts");
+    const original = execFileSync("git", ["show", "v1.0.0:src/ascii-wave.ts"], {
+      cwd: root,
+      encoding: "utf8",
+    });
+    // 수식 선택·접속 처리 외에 기존 투영·문자·색상·제목 마스크·정지 제어를 보존한다.
+    for (const [start, end] of [
+      ["  const points:", "  const canMove"],
+      ["      const x = point.x", "    ctx.globalAlpha = 1;"],
+      ["  function tick", "  resize();"],
+    ]) {
+      const section = (text) =>
+        text.slice(text.indexOf(start), text.indexOf(end, text.indexOf(start)));
+      assert.ok(wave.includes(start) && wave.includes(end));
+      assert.equal(section(wave), section(original));
+    }
+    assert.ok(
+      wave.includes("sampleAsciiSurface(variant, point.x, point.z, time)"),
+    );
+    assert.ok(wave.includes("if (event.persisted)"));
+  },
+);
+probe(
+  "Approved readability layer uses 18/17/15px without restyling headings",
+  () => {
+    const css = read("src/readability.css");
+    assert.match(css, /--read-text:\s*18px/);
+    assert.match(css, /--read-note:\s*15px/);
+    assert.match(css, /@media \(max-width: 700px\)[\s\S]*--read-text:\s*17px/);
+    assert.match(
+      css,
+      /\.p6-footnote\s*\{\s*font-size: var\(--read-note\) !important/,
+    );
+    assert.match(css, /\.p6-form textarea\s*\{\s*font-size: 17px/);
+    assert.ok(
+      !/\b(?:color|background|font-family|animation|transition)\s*:/.test(css),
+    );
+    assert.ok(!/(?:^|[,}\n])\s*(?:h[12]|[^{}\n]*\bh[12])\s*[{,]/.test(css));
+    const main = read("src/main.ts");
+    assert.ok(
+      main.indexOf('import "./readability.css"') >
+        main.indexOf('import "./content-pages.css"'),
+    );
+    for (const html of Object.values(markup)) {
+      const cssPath = html.match(
+        /<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/,
+      )[1];
+      const builtCss = read(`dist${cssPath}`);
+      assert.ok(
+        builtCss.includes("--read-text:18px") &&
+          builtCss.includes("--read-note:15px"),
+      );
+      assert.ok(builtCss.includes("--read-text:17px"));
+    }
   },
 );
 probe("Three actual deck captures match preserved SHA-256 values", () => {
@@ -212,11 +270,11 @@ probe(
     assert.ok(fs.existsSync(path.join(root, "dist/404.html")));
   },
 );
-probe("Package and lock use the same 2.2.0 version", () => {
-  assert.equal(JSON.parse(read("package.json")).version, "2.2.0");
+probe("Package and lock use the same 2.2.1 version", () => {
+  assert.equal(JSON.parse(read("package.json")).version, "2.2.1");
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(lock.version, "2.2.0");
-  assert.equal(lock.packages[""].version, "2.2.0");
+  assert.equal(lock.version, "2.2.1");
+  assert.equal(lock.packages[""].version, "2.2.1");
 });
 
 // Compile the actual production module, not a copied implementation.
@@ -371,6 +429,7 @@ try {
     else globalThis[key] = value;
   }
 }
+await import("./verify-ascii.mjs");
 console.log(
   JSON.stringify(
     { passed: results.length, failed: 0, checks: results },

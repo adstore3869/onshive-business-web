@@ -1,3 +1,10 @@
+import {
+  ASCII_VARIANTS,
+  chooseAsciiVariant,
+  sampleAsciiSurface,
+} from "./ascii-patterns";
+import type { AsciiVariant } from "./ascii-patterns";
+
 type WavePoint = { x: number; z: number; seed: number };
 type ProjectedPoint = WavePoint & { y: number; light: number };
 
@@ -68,6 +75,31 @@ export function createAsciiWave(
     pageActive &&
     !document.hidden;
 
+  const storageKey = "onshive:ascii:last";
+  let storageUsable = true;
+  function pickVariant(previous: string | null = null): AsciiVariant {
+    if (storageUsable) {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (ASCII_VARIANTS.includes(stored as AsciiVariant)) previous = stored;
+      } catch {
+        storageUsable = false;
+      }
+    }
+    const next = chooseAsciiVariant(previous);
+    if (storageUsable) {
+      try {
+        localStorage.setItem(storageKey, next);
+      } catch {
+        // 쓰기만 거부되어 과거값이 남아도 이후에는 현재 문서 값을 사용한다.
+        storageUsable = false;
+      }
+    }
+    return next;
+  }
+  let variant = pickVariant();
+  art.dataset.variant = variant;
+
   function draw(): void {
     ctx.clearRect(0, 0, width, height);
     const scale = Math.min(width, height);
@@ -78,11 +110,7 @@ export function createAsciiWave(
 
     for (let index = 0; index < points.length; index++) {
       const point = points[index];
-      const phase = point.x * 1.3 - time * 1.7;
-      const wave =
-        0.62 * Math.sin(phase) +
-        0.24 * Math.cos(point.z * 1.8 + point.x * 0.68 - time) +
-        0.12 * Math.sin(point.z * 3 - time);
+      const wave = sampleAsciiSurface(variant, point.x, point.z, time);
       const x = point.x + point.z * 0.23;
       const ty = wave * 0.95 + point.z * (0.44 + driftY);
       const tx = x * cosB - ty * sinB;
@@ -221,7 +249,14 @@ export function createAsciiWave(
     pageActive = false;
     sync();
   });
-  window.addEventListener("pageshow", () => {
+  window.addEventListener("pageshow", (event) => {
+    // 일반 접속은 초기화에서 한 번만 선택하고, 캐시 복귀 때만 새로 선택한다.
+    if (event.persisted) {
+      variant = pickVariant(variant);
+      art.dataset.variant = variant;
+      elapsed = 0;
+      draw();
+    }
     pageActive = true;
     const bounds = hero.getBoundingClientRect();
     visible = bounds.bottom > 0 && bounds.top < innerHeight;

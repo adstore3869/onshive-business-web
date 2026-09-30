@@ -4,6 +4,7 @@ import "./styles.css";
 import "./home-scenes.css";
 import "./visual-pages.css";
 import "./content-pages.css";
+import "./readability.css";
 import { createAsciiWave } from "./ascii-wave";
 import { createScrollScenes } from "./scroll-scenes";
 import { setupPartnershipForm } from "./partnership-form";

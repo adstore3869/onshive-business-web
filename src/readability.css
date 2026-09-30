@@ -1,0 +1,244 @@
+/* Approved P-0007 readability layer. Original palette, headlines and graphics retained. */
+:root {
+  --read-text: 18px;
+  --read-note: 15px;
+}
+
+body {
+  font-size: var(--read-text);
+  line-height: 1.8;
+}
+
+/* 좁은 카드의 문장도 본문용 글자 크기를 유지한다. */
+.p6-hero .hero-copy,
+.p6-head > p,
+.p6-split > div > p:not(.eyebrow):not(.p6-footnote),
+.home-service-sticky > p:not(.eyebrow),
+.home-service-step > p,
+.p6-flow p,
+.p6-capture p,
+.p6-action-notes p,
+.p6-capability-list p,
+.p6-cta > p:not(.eyebrow),
+.p6-timeline-entry p,
+.p6-business-detail
+  .p6-business-grid
+  > div
+  > p:not(.eyebrow):not(.p6-subhead):not(.p6-footnote),
+.p6-career-experience p,
+.p6-values p,
+.p6-form-wrap p:not(.eyebrow):not(.p6-footnote),
+.visual-page-head .visual-lead,
+.visual-experience-map p:not(.visual-eyebrow),
+.visual-timeline-entries p,
+.visual-job-notice > p:not(.p6-footnote) {
+  font-size: var(--read-text);
+  line-height: 1.85;
+}
+
+/* 기존 주석의 important 규칙에 맞춰 크기와 행간만 덮어쓴다. */
+.p6-footnote {
+  font-size: var(--read-note) !important;
+  line-height: 1.8 !important;
+}
+
+.home-stat-grid p,
+.source-note,
+.p6-business-visual .p6-image-caption,
+.p6-capture figcaption,
+.p6-missing small,
+.p6-print-system > p,
+.p6-note-line,
+.p6-page-intro-note,
+.p6-org p,
+.p6-attachment-note,
+.p6-attachment-note p,
+.p6-form-status,
+.visual-stats p,
+.visual-source,
+.visual-image-note,
+.company-legal,
+.footer-info,
+.preview-note {
+  font-size: var(--read-note);
+  line-height: 1.8;
+}
+
+.p6-hero .eyebrow,
+.p6-cta .eyebrow,
+.p6-business-detail .eyebrow,
+.p6-form-wrap .eyebrow,
+.eyebrow,
+.visual-eyebrow,
+.visual-topline,
+.visual-evidence-label,
+.p6-business-labels,
+.home-service-title > span,
+.home-service-progress small,
+.p6-flow small,
+.p6-print-chain small,
+.p6-action-notes small,
+.p6-capability-list small,
+.p6-capability-list h3 span,
+.p6-career-areas,
+.p6-career-experience small,
+.p6-values small,
+.p6-org small,
+.p6-timeline-entry small,
+.visual-timeline-entries small,
+.p6-panel-label,
+.p6-partnership-types,
+.p6-types span,
+.p6-channel-grid span {
+  font-size: var(--read-note);
+  line-height: 1.6;
+  letter-spacing: 0.035em;
+}
+
+.p6-facts > div,
+.p6-detail-rows div,
+.p6-operating-line span,
+.p6-print-chain span,
+.p6-form label {
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.nav {
+  font-size: 16px;
+}
+.button,
+.hero-actions .button,
+.textlink,
+.hero-actions .textlink,
+.visual-link,
+.p6-hero .scroll-link,
+.preview-note > a {
+  font-size: 16px;
+  line-height: 1.7;
+}
+.p6-form input,
+.p6-form select,
+.p6-form textarea {
+  font-size: 17px;
+}
+.home-stat-grid h3 {
+  font-size: 17px;
+  line-height: 1.5;
+}
+.home-stat-grid strong small,
+.p6-hero .vertical-note,
+.p6-hero .hero-bottom > span,
+.p6-hero .hero-index span {
+  font-size: 15px;
+}
+
+/* 커진 캡션은 이미지 아래에 두어 이미지 속 글자를 가리지 않는다. */
+.p6-business-visual:has(.p6-image-caption) {
+  display: flex;
+  flex-direction: column;
+}
+.p6-business-visual:has(.p6-image-caption) img {
+  flex: 1;
+  min-height: 0;
+}
+.p6-business-visual .p6-image-caption {
+  position: static;
+  flex: none;
+  margin: 0 20px 12px;
+  padding-top: 8px;
+}
+.p6-hero .hero-copy {
+  max-width: 610px;
+}
+.p6-flow article,
+.p6-org article,
+.p6-capability-list article > *,
+.p6-facts dd,
+.p6-detail-rows dd {
+  min-width: 0;
+}
+.p6-capability-list h3 span,
+.p6-print-chain small,
+.visual-topline,
+.eyebrow,
+.visual-eyebrow {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1000px) {
+  .nav {
+    gap: 20px;
+  }
+}
+@media (max-width: 700px) {
+  :root {
+    --read-text: 17px;
+  }
+  .nav {
+    font-size: 18px;
+  }
+  .p6-hero {
+    height: auto;
+    max-height: none;
+  }
+  .p6-hero .hero-actions {
+    flex-wrap: wrap;
+    gap: 12px 24px;
+  }
+  .p6-hero .hero-copy {
+    max-width: 100%;
+  }
+  .p6-hero .hero-bottom {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .p6-hero .scroll-link {
+    white-space: normal;
+    letter-spacing: 0.025em;
+    font-size: 15px;
+  }
+  .p6-hero .hero-index {
+    font-size: 15px;
+  }
+  .visual-topline {
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+  .p6-business-visual .p6-image-caption {
+    margin-inline: 14px;
+  }
+  .p6-print-system {
+    height: auto;
+    min-height: 300px;
+    padding: 18px;
+    gap: 14px;
+  }
+  .p6-business-visual:has(.p6-print-system) {
+    height: auto;
+    min-height: 300px;
+  }
+  .p6-print-chain span {
+    padding: 12px 6px;
+    font-size: 15px;
+  }
+  .footer-rule {
+    align-items: start;
+  }
+}
+@media (max-width: 420px) {
+  .p6-flow {
+    grid-template-columns: 1fr;
+  }
+  .p6-flow article:nth-child(n) {
+    border-left: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .p6-flow h3 {
+    margin-top: 18px;
+  }
+  .p6-print-chain {
+    gap: 6px;
+  }
+}
