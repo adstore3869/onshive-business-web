@@ -1,6 +1,6 @@
 {
   "name": "onshive-web",
-  "version": "2.3.0-rc.1",
+  "version": "2.3.0-rc.2",
   "private": true,
   "type": "module",
   "description": "온스하이브 기업 소개 웹사이트",

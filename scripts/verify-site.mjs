@@ -378,11 +378,172 @@ probe(
     );
   },
 );
-probe("Package and lock use the same 2.3.0-rc.1 candidate version", () => {
-  assert.equal(JSON.parse(read("package.json")).version, "2.3.0-rc.1");
+const headingText = (html) =>
+  compact(html.replace(/<br\s*\/?\s*>/g, " ").replace(/<[^>]+>/g, "")).trim();
+const headingEntries = (html) =>
+  [...html.matchAll(/<h([12])\b([^>]*)>([\s\S]*?)<\/h\1>/g)].map(
+    ([, level, attributes, body]) => ({
+      level,
+      attributes: compact(attributes),
+      text: headingText(body),
+    }),
+  );
+const copyReplacements = new Map([
+  ["연락처를 용도별로 구분합니다.", "연락처"],
+  ["운영의 규모는, 사실로 보여줍니다.", "사업 운영 현황"],
+  ["두 개의 사업, 하나의 운영 체계.", "회사 개요"],
+  ["기획은 판매로, 판매는 다음 기획으로.", "상품기획부터 고객관리까지"],
+  ["운영으로 남은 기록.", "주요 운영 기록"],
+  ["서로 다른 전문성으로, 같은 사업을 운영합니다.", "조직 소개"],
+  ["서비스 목록보다, 운영의 실제를.", "운영 역량"],
+  ["앞단의 판단이, 뒷단의 운영으로.", "상품·판매·고객관리"],
+  ["기획과 판매가, 같은 업무의 흐름입니다.", "주요 업무"],
+  ["각 분야의 전문성을 함께 운영합니다.", "조직 소개"],
+  ["Every step, forward.", "사업 운영 기록"],
+  ["경험을 연결해, 새로운 가능성으로.", "운영 기록 더 보기"],
+  ["사업을 운영하며 쌓은 역량.", "운영 역량"],
+  ["상품 하나가 고객에게 도달하는 과정을 경험합니다.", "온스하이브의 일"],
+  ["상품과 브랜드의 시장을, 함께 만듭니다.", "사업 제휴"],
+  ["상품과 고객을 이해하고, 실행으로 배웁니다.", "일하는 방식"],
+  ["직접 경험하고, 더 깊이 이해합니다.", "사업 운영과 현장 기록."],
+  ["화면 속의 만남을, 현장의 경험으로.", "온라인 판매와 박람회 현장"],
+]);
+const copyBaseline = Object.fromEntries(
+  files.map((file) => [
+    file,
+    execFileSync("git", ["show", `v2.3.0-rc.1:src/${file}`], {
+      cwd: root,
+      encoding: "utf8",
+    }),
+  ]),
+);
+
+probe("Twenty-two concise headings replace only approved stock copy", () => {
+  let changed = 0;
+  for (const file of files) {
+    const expected = headingEntries(copyBaseline[file]).map((entry) => {
+      const next = copyReplacements.get(entry.text);
+      if (next) changed += 1;
+      return { ...entry, text: next ?? entry.text };
+    });
+    assert.deepEqual(headingEntries(source[file]), expected, file);
+    assert.deepEqual(headingEntries(markup[file]), expected, `built ${file}`);
+  }
+  assert.equal(changed, 22);
+});
+probe(
+  "All seven pages omit presentation commentary and replaced slogans",
+  () => {
+    for (const collection of [source, markup])
+      for (const [file, html] of Object.entries(collection)) {
+        for (const entry of headingEntries(html))
+          assert.ok(
+            !copyReplacements.has(entry.text),
+            `${file}: ${entry.text}`,
+          );
+        assert.doesNotMatch(headingText(html), /채널 이름만 나열하지/);
+        assert.doesNotMatch(
+          headingText(html),
+          /상품과 브랜드의 시장을,?\s*함께 만듭니다/,
+        );
+      }
+  },
+);
+probe(
+  "Copy cleanup preserves the surrounding DOM, facts and contact form",
+  () => {
+    const withoutHeadings = (html) =>
+      compact(
+        html.replace(
+          /<h([12])\b([^>]*)>[\s\S]*?<\/h\1>/g,
+          "<h$1$2>#approved-copy#</h$1>",
+        ),
+      )
+        .replace(/>\s+/g, ">")
+        .replace(/\s+</g, "<");
+    for (const file of files) {
+      let baseline = copyBaseline[file];
+      if (file === "business/index.html")
+        baseline = baseline.replace(
+          /채널 이름만 나열하지\s+않고 구매 전후의 운영까지 수행합니다\./,
+          "",
+        );
+      if (file === "contact/index.html")
+        baseline = baseline.replace(
+          /상품과 브랜드의 시장을 함께 만듭니다\.<br\s*\/?>/,
+          "",
+        );
+      assert.equal(
+        withoutHeadings(source[file]),
+        withoutHeadings(baseline),
+        file,
+      );
+    }
+  },
+);
+probe(
+  "Copy-only candidate preserves all other tracked runtime and assets",
+  () => {
+    const allowed = new Set([
+      ...files.map((file) => `src/${file}`),
+      "scripts/verify-site.mjs",
+      "package.json",
+      "package-lock.json",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/content-guide.md",
+      "docs/versioning-and-rollback.md",
+    ]);
+    const tracked = execFileSync(
+      "git",
+      ["ls-tree", "-r", "--name-only", "v2.3.0-rc.1"],
+      { cwd: root, encoding: "utf8" },
+    )
+      .trim()
+      .split(/\r?\n/);
+    for (const file of tracked.filter((file) => !allowed.has(file))) {
+      const baseline = execFileSync("git", ["show", `v2.3.0-rc.1:${file}`], {
+        cwd: root,
+      });
+      const current = fs.readFileSync(path.join(root, file));
+      if (/\.(?:md|html|css|ts|mjs|jsonc?|toml|xml|txt|svg|ya?ml)$/.test(file))
+        assert.equal(
+          current.toString("utf8").replace(/\r\n/g, "\n"),
+          baseline.toString("utf8").replace(/\r\n/g, "\n"),
+          file,
+        );
+      else assert.deepEqual(current, baseline, file);
+    }
+    const baselineLock = JSON.parse(
+      execFileSync("git", ["show", "v2.3.0-rc.1:package-lock.json"], {
+        cwd: root,
+        encoding: "utf8",
+      }),
+    );
+    const currentLock = JSON.parse(read("package-lock.json"));
+    currentLock.version = baselineLock.version;
+    currentLock.packages[""].version = baselineLock.packages[""].version;
+    assert.deepEqual(currentLock, baselineLock);
+    const baselineReadme = execFileSync(
+      "git",
+      ["show", "v2.3.0-rc.1:README.md"],
+      {
+        cwd: root,
+        encoding: "utf8",
+      },
+    );
+    const managed = (text) =>
+      text
+        .match(/<!-- leerness:project-readme:start -->[\s\S]*$/)[0]
+        .replace(/\r\n/g, "\n");
+    assert.equal(managed(read("README.md")), managed(baselineReadme));
+  },
+);
+probe("Package and lock use the same 2.3.0-rc.2 candidate version", () => {
+  assert.equal(JSON.parse(read("package.json")).version, "2.3.0-rc.2");
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(lock.version, "2.3.0-rc.1");
-  assert.equal(lock.packages[""].version, "2.3.0-rc.1");
+  assert.equal(lock.version, "2.3.0-rc.2");
+  assert.equal(lock.packages[""].version, "2.3.0-rc.2");
 });
 
 // The removed mail-draft behavior is replaced by actual Slack API/client regression.
