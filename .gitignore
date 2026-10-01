@@ -13,6 +13,10 @@ leerness.html
 .env.local
 .env.production
 .env.*.local
+.env.*
+.dev.vars*
+.dev.vars
+functions/types.d.ts
 *.pem
 credentials.json
 .leerness/skill-publish.local.json

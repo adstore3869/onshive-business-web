@@ -1,0 +1,113 @@
+/* P-0010: existing contact layout, palette and readable type are retained. */
+body[data-page="contact"] .p6-form-wrap > * {
+  min-width: 0;
+}
+.p6-form-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+.p6-form-intro p {
+  margin: 0;
+}
+.p6-form-intro span {
+  flex: none;
+  font-size: 15px;
+  color: var(--muted);
+}
+.p6-form .p6-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.p6-form .p6-consent {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 26px;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.8;
+}
+.p6-form .p6-consent input {
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  padding: 0;
+  flex: 0 0 20px;
+  margin-top: 3px;
+  accent-color: var(--ink);
+}
+.p6-consent-detail {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+.p6-consent-detail summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.p6-consent-detail dl {
+  margin: 16px 0 0;
+}
+.p6-consent-detail dl > div {
+  margin-bottom: 10px;
+}
+.p6-consent-detail dt {
+  font-weight: 600;
+  color: var(--ink);
+}
+.p6-consent-detail dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.p6-form .p6-consent-detail p {
+  font-size: 15px;
+  line-height: 1.8;
+}
+.p6-form .p6-form-status {
+  margin-top: 22px;
+  padding: 20px 0 20px 18px;
+  border-left: 3px solid var(--gold);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.p6-form-status h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 600;
+}
+.p6-form .p6-form-status p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.p6-form-status a {
+  display: inline-block;
+  margin-top: 12px;
+}
+.p6-form-status[data-tone="error"] {
+  border-color: #8c3b2c;
+}
+.p6-form button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+.p6-form input::placeholder,
+.p6-form textarea::placeholder {
+  color: #66695e;
+  opacity: 1;
+}
+.p6-form-status[hidden],
+.p6-form-status a[hidden] {
+  display: none;
+}

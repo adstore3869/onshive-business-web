@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -226,7 +226,7 @@ probe("Three actual deck captures match preserved SHA-256 values", () => {
   }
 });
 probe(
-  "Contact is fail-closed without JS and cannot upload or submit to a server",
+  "Contact is fail-closed without JS; only the fixed same-origin API can submit",
   () => {
     const contact = source["contact/index.html"];
     assert.match(contact, /id="partnership-form" hidden/);
@@ -235,11 +235,17 @@ probe(
     assert.ok(contact.includes("<noscript"));
     assert.ok(!contact.includes('type="file"'));
     assert.match(read("src/main.ts"), /setupPartnershipForm\(\)/);
+    const client = read("src/partnership-form.ts");
     assert.ok(
-      !/fetch\(|XMLHttpRequest|localStorage|sessionStorage|FileReader/.test(
-        read("src/partnership-form.ts"),
+      !/XMLHttpRequest|localStorage|sessionStorage|FileReader|mailto:|window\.location/.test(
+        client,
       ),
     );
+    assert.ok(client.includes('transport("/api/inquiry"'));
+    assert.ok(client.includes('credentials: "same-origin"'));
+    assert.ok(contact.includes("connect-src 'self'"));
+    assert.ok(contact.includes('name="consent" required'));
+    assert.ok(contact.includes('name="website"'));
   },
 );
 probe(
@@ -280,7 +286,7 @@ probe("Removed meta notes leave no empty note or caption wrappers", () => {
   for (const [file, html] of Object.entries(markup)) {
     // The existing live region is populated by form validation/draft status.
     const withoutLiveStatus = html.replace(
-      /<p class="p6-form-status" role="status" aria-live="polite"><\/p>/g,
+      /<div\s+class="p6-form-status"\s+role="status"[^>]*>[\s\S]*?<\/div>/g,
       "",
     );
     assert.doesNotMatch(
@@ -357,174 +363,30 @@ probe(
   "Useful contact and hiring guidance remains while redundant qualification is removed",
   () => {
     const contact = compact(markup["contact/index.html"]);
-    assert.match(contact, /사이트에서 접수·저장·전송하지 않습니다/);
-    assert.match(contact, /첨부파일은 메일 앱에서 직접 추가/);
-    assert.match(contact, /초안을 열어도 문의가 접수된 것은 아닙니다/);
+    assert.match(contact, /답변받을 이메일/);
+    assert.match(contact, /문의 보내기/);
+    assert.match(contact, /개인정보 이용 안내/);
+    assert.match(contact, /접수일로부터 3년/);
+    assert.match(contact, /이 양식에서는 파일을 첨부하지 않습니다/);
+    assert.doesNotMatch(
+      contact,
+      /메일 앱에서|사이트에서 접수·저장·전송하지|초안/,
+    );
     assert.match(
       compact(markup["careers/index.html"]),
       /이 페이지에 게시된 채용 공고는 없습니다/,
     );
   },
 );
-probe("Package and lock use the same 2.2.3 version", () => {
-  assert.equal(JSON.parse(read("package.json")).version, "2.2.3");
+probe("Package and lock use the same 2.3.0-rc.1 candidate version", () => {
+  assert.equal(JSON.parse(read("package.json")).version, "2.3.0-rc.1");
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(lock.version, "2.2.3");
-  assert.equal(lock.packages[""].version, "2.2.3");
+  assert.equal(lock.version, "2.3.0-rc.1");
+  assert.equal(lock.packages[""].version, "2.3.0-rc.1");
 });
 
-// Compile the actual production module, not a copied implementation.
-execFileSync(
-  process.execPath,
-  [
-    path.join(root, "node_modules/typescript/bin/tsc"),
-    "--ignoreConfig",
-    "src/partnership-form.ts",
-    "--target",
-    "ES2022",
-    "--module",
-    "ESNext",
-    "--moduleResolution",
-    "Bundler",
-    "--lib",
-    "ES2022,DOM",
-    "--skipLibCheck",
-    "--outDir",
-    "tmp/p6-form-test",
-  ],
-  { cwd: root, stdio: "pipe" },
-);
-const { buildPartnershipMailto, setupPartnershipForm } = await import(
-  pathToFileURL(path.join(root, "tmp/p6-form-test/partnership-form.js")).href
-);
-const valid = {
-  company: "검증용 회사 & co",
-  name: "검증 담당자",
-  phone: "",
-  email: "preview@example.invalid",
-  type: "상품 공급",
-  description: "상품 소개\n두 번째 줄 & 협력 범위",
-};
-probe("Mail draft recipient, Korean subject, body and optional phone", () => {
-  const draft = new URL(buildPartnershipMailto(valid));
-  assert.equal(draft.pathname, "scm@onshive.kr");
-  assert.equal(draft.protocol, "mailto:");
-  assert.equal(
-    draft.searchParams.get("subject"),
-    "[사업 제휴] 검증용 회사 & co / 상품 공급",
-  );
-  assert.ok(draft.searchParams.get("body").includes(valid.description));
-  assert.ok(draft.searchParams.get("body").includes("연락처: 미기재"));
-});
-for (const field of ["company", "name", "description"])
-  probe(`Empty ${field} is rejected`, () =>
-    assert.throws(() => buildPartnershipMailto({ ...valid, [field]: "" })),
-  );
-probe("Unsupported proposal type rejected", () =>
-  assert.throws(() => buildPartnershipMailto({ ...valid, type: "허위 유형" })),
-);
-probe("Invalid email rejected", () =>
-  assert.throws(() => buildPartnershipMailto({ ...valid, email: "bad@" })),
-);
-probe(
-  "Subject control characters normalized and query injection escaped",
-  () => {
-    const url = new URL(
-      buildPartnershipMailto({
-        ...valid,
-        company: "a\r\nb&bcc=evil@example.invalid",
-      }),
-    );
-    assert.ok(!url.searchParams.has("bcc"));
-    assert.ok(!url.searchParams.get("subject").includes("\n"));
-  },
-);
-probe("Oversized draft is rejected without silent truncation", () =>
-  assert.throws(
-    () => buildPartnershipMailto({ ...valid, description: "가".repeat(2000) }),
-    /너무 깁니다/,
-  ),
-);
-
-const saved = {
-  document: globalThis.document,
-  window: globalThis.window,
-  FormData: globalThis.FormData,
-};
-try {
-  let listener;
-  let validated = true;
-  let formValues = valid;
-  const button = { disabled: true },
-    status = { textContent: "" };
-  const form = {
-    hidden: true,
-    querySelector: (s) => (s.startsWith("button") ? button : status),
-    addEventListener: (name, handler) => {
-      assert.equal(name, "submit");
-      listener = handler;
-      assert.equal(button.disabled, true);
-      assert.equal(form.hidden, true);
-    },
-    reportValidity: () => validated,
-  };
-  globalThis.document = { querySelector: () => null };
-  probe("Non-contact pages initialize without a form", () =>
-    setupPartnershipForm(),
-  );
-  globalThis.document = { querySelector: () => form };
-  globalThis.window = { location: { href: "" } };
-  globalThis.FormData = class {
-    get(field) {
-      return formValues[field];
-    }
-  };
-  probe(
-    "Listener is connected before form visibility and submit activation",
-    () => {
-      setupPartnershipForm();
-      assert.equal(typeof listener, "function");
-      assert.equal(button.disabled, false);
-      assert.equal(form.hidden, false);
-    },
-  );
-  probe(
-    "Invalid browser form prevents default and does not open mail app",
-    () => {
-      validated = false;
-      let stopped = false;
-      listener({
-        preventDefault() {
-          stopped = true;
-        },
-      });
-      assert.equal(stopped, true);
-      assert.equal(window.location.href, "");
-    },
-  );
-  probe(
-    "Valid submit only creates a mock mail draft; never says received",
-    () => {
-      validated = true;
-      listener({ preventDefault() {} });
-      assert.equal(window.location.href, buildPartnershipMailto(valid));
-      assert.ok(status.textContent.includes("접수되거나 전송된 것은 아닙니다"));
-    },
-  );
-  probe("Draft error keeps page and entered data intact", () => {
-    window.location.href = "";
-    formValues = { ...valid, email: "bad" };
-    listener({ preventDefault() {} });
-    assert.equal(window.location.href, "");
-    assert.ok(status.textContent.includes("이메일 주소"));
-    assert.equal(formValues.company, valid.company);
-  });
-} finally {
-  for (const [key, value] of Object.entries(saved)) {
-    if (value === undefined) delete globalThis[key];
-    else globalThis[key] = value;
-  }
-}
+// The removed mail-draft behavior is replaced by actual Slack API/client regression.
+await import("./verify-inquiry.mjs");
 await import("./verify-ascii.mjs");
 await import("./verify-editorial.mjs");
 console.log(
@@ -535,5 +397,5 @@ console.log(
   ),
 );
 console.log(
-  `${results.length}/${results.length} PASS — static built-site and actual mail-module regression probes; no email sent.`,
+  `${results.length}/${results.length} PASS — static built-site probes; Slack/client, ASCII and editorial suites reported separately. No external inquiry sent.`,
 );

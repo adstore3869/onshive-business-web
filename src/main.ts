@@ -6,6 +6,7 @@ import "./visual-pages.css";
 import "./content-pages.css";
 import "./editorial-content.css";
 import "./readability.css";
+import "./contact-form.css";
 import { createAsciiWave } from "./ascii-wave";
 import { createScrollScenes } from "./scroll-scenes";
 import { setupPartnershipForm } from "./partnership-form";

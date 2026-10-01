@@ -1,57 +1,84 @@
-type PartnershipValues = {
-  company: string;
-  name: string;
-  phone: string;
-  email: string;
-  type: string;
-  description: string;
-};
+import {
+  readLimitedText,
+  validateInquiry,
+  type DeliveryReply,
+  type Inquiry,
+} from "./inquiry.js";
 
-const proposalTypes = [
-  "제조·OEM 제안",
-  "상품 공급",
-  "유통",
-  "오프라인 리테일",
-  "온라인 판매 채널",
-  "B2B 제안",
-  "전략적 제휴",
-  "기타",
-];
+const failureCodes = new Set([
+  "METHOD_NOT_ALLOWED",
+  "ORIGIN_REJECTED",
+  "INVALID_CONTENT_TYPE",
+  "BODY_TOO_LARGE",
+  "INVALID_JSON",
+  "INVALID_INPUT",
+  "SPAM_REJECTED",
+  "TOO_FAST",
+  "NOT_CONFIGURED",
+  "RATE_LIMITED",
+  "DELIVERY_REJECTED",
+]);
 
-// Only creates a local draft URL. No request, storage, file read or email send.
-export function buildPartnershipMailto(values: PartnershipValues): string {
-  const singleLine = (value: string) =>
-    value.replace(/[\r\n\x00-\x1f]/g, " ").trim();
-  const company = singleLine(values.company);
-  const name = singleLine(values.name);
-  const email = singleLine(values.email);
-  const type = singleLine(values.type);
-  const description = values.description.replace(/\r\n?/g, "\n").trim();
-  if (!company || !name || !description || !proposalTypes.includes(type)) {
-    throw new Error("회사명, 담당자명, 제휴 유형과 제안 내용을 확인해 주세요.");
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw new Error("연락받을 이메일 주소를 확인해 주세요.");
-  }
-  const body = [
-    `회사명: ${company}`,
-    `담당자: ${name}`,
-    `연락처: ${singleLine(values.phone) || "미기재"}`,
-    `이메일: ${email}`,
-    `제휴 유형: ${type}`,
-    "",
-    "회사·상품 및 제안 내용:",
-    description,
-    "",
-    "※ 소개 자료는 이 메일에 직접 첨부해 주세요.",
-  ].join("\n");
-  const url = `mailto:scm@onshive.kr?subject=${encodeURIComponent(`[사업 제휴] ${company} / ${type}`)}&body=${encodeURIComponent(body)}`;
-  if (url.length > 8000) {
-    throw new Error(
-      "메일 초안이 너무 깁니다. 내용을 줄이거나 scm@onshive.kr로 직접 보내 주세요.",
+export async function sendInquiry(
+  values: Inquiry,
+  transport: typeof fetch = fetch,
+  timeoutMs = 12000,
+): Promise<DeliveryReply> {
+  const unknown: DeliveryReply = {
+    state: "unknown",
+    code: "DELIVERY_UNKNOWN",
+    reference: values.requestId,
+  };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await transport("/api/inquiry", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "ONSHIVE-Contact",
+      },
+      body: JSON.stringify(values),
+      redirect: "error",
+      signal: controller.signal,
+    });
+    const result: unknown = JSON.parse(
+      await readLimitedText(response.body, 2048),
     );
+    if (!result || typeof result !== "object" || Array.isArray(result))
+      return unknown;
+    const received = result as Record<string, unknown>;
+    if (
+      response.status === 200 &&
+      received.state === "success" &&
+      received.code === "ACCEPTED" &&
+      received.reference === values.requestId
+    ) {
+      return {
+        state: "success",
+        code: "ACCEPTED",
+        reference: values.requestId,
+      };
+    }
+    if (
+      !response.ok &&
+      received.state === "failure" &&
+      typeof received.code === "string" &&
+      failureCodes.has(received.code)
+    ) {
+      return {
+        state: "failure",
+        code: received.code,
+        reference: values.requestId,
+      };
+    }
+  } catch {
+    // A lost response is not proof of non-delivery. No automatic retries.
+  } finally {
+    clearTimeout(timer);
   }
-  return url;
+  return unknown;
 }
 
 export function setupPartnershipForm(): void {
@@ -59,35 +86,110 @@ export function setupPartnershipForm(): void {
   const button = form?.querySelector<HTMLButtonElement>(
     'button[type="submit"]',
   );
+  const buttonLabel = button?.querySelector<HTMLElement>(".button-label");
   const status = form?.querySelector<HTMLElement>('[role="status"]');
-  if (!form || !button || !status) return;
+  const title = status?.querySelector<HTMLElement>(".status-title");
+  const copy = status?.querySelector<HTMLElement>(".status-copy");
+  const contact = status?.querySelector<HTMLAnchorElement>(".status-contact");
+  if (
+    !form ||
+    !button ||
+    !buttonLabel ||
+    !status ||
+    !title ||
+    !copy ||
+    !contact
+  )
+    return;
 
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
+  let state: "idle" | "sending" | DeliveryReply["state"] = "idle";
+  const startedAt = Date.now();
+  const requestId = crypto.randomUUID();
+  const controls = form.querySelectorAll<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >("input, select, textarea");
+  const setState = (next: typeof state, heading: string, message: string) => {
+    state = next;
+    form.dataset.state = next;
+    form.setAttribute("aria-busy", String(next === "sending"));
+    const locked =
+      next === "sending" || next === "success" || next === "unknown";
+    button.disabled = locked;
+    for (const control of controls) control.disabled = locked;
+    buttonLabel.textContent =
+      next === "sending"
+        ? "전송 중…"
+        : next === "success"
+          ? "전송 완료"
+          : "문의 보내기";
+    status.hidden = next === "idle";
+    status.dataset.tone = next === "failure" ? "error" : "normal";
+    title.textContent = heading;
+    copy.textContent = message;
+    contact.hidden = next !== "failure" && next !== "unknown";
+  };
+
+  const submit = async () => {
+    if (state === "sending" || state === "success" || state === "unknown")
+      return;
     if (!form.reportValidity()) return;
     const data = new FormData(form);
-    const value = (field: string) => String(data.get(field) ?? "");
-    try {
-      const url = buildPartnershipMailto({
-        company: value("company"),
-        name: value("name"),
-        phone: value("phone"),
-        email: value("email"),
-        type: value("type"),
-        description: value("description"),
-      });
-      status.textContent =
-        "메일 앱에서 초안을 확인한 뒤 직접 보내 주세요. 이 사이트에서 문의가 접수되거나 전송된 것은 아닙니다.";
-      // Explicit user submit opens their mail client; it never sends the email.
-      window.location.href = url;
-    } catch (error) {
-      status.textContent =
-        error instanceof Error
-          ? error.message
-          : "메일 앱에서 문의를 작성하거나 이메일로 직접 연락해 주세요.";
+    const text = (name: string) => data.get(name);
+    const validation = validateInquiry({
+      company: text("company"),
+      name: text("name"),
+      phone: text("phone"),
+      email: text("email"),
+      type: text("type"),
+      description: text("description"),
+      consent: data.get("consent") === "on",
+      website: text("website"),
+      startedAt,
+      requestId,
+    });
+    if (!validation.ok) {
+      setState("failure", "입력 내용을 확인해 주세요.", validation.message);
+      return;
     }
+    setState(
+      "sending",
+      "문의 내용을 보내고 있습니다.",
+      "완료 안내가 표시될 때까지 잠시 기다려 주세요.",
+    );
+    const result = await sendInquiry(validation.value);
+    if (result.state === "success") {
+      setState(
+        "success",
+        "문의가 전달되었습니다.",
+        "담당자가 내용을 검토한 뒤 남겨 주신 연락처로 답변드립니다.",
+      );
+    } else if (result.state === "failure") {
+      setState(
+        "failure",
+        "문의가 전송되지 않았습니다.",
+        result.code === "RATE_LIMITED"
+          ? "잠시 후 다시 시도하거나 아래 연락처로 문의해 주세요. 입력 내용은 그대로 남아 있습니다."
+          : "입력 내용을 확인하고 다시 시도하거나 아래 연락처로 문의해 주세요. 입력 내용은 그대로 남아 있습니다.",
+      );
+    } else {
+      setState(
+        "unknown",
+        "전송 결과를 확인하지 못했습니다.",
+        `중복 문의를 막기 위해 다시 보내기를 멈췄습니다. 아래 연락처로 전달 여부를 확인해 주세요. 문의 번호: ${requestId}`,
+      );
+    }
+  };
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    void submit().catch(() => {
+      setState(
+        "unknown",
+        "전송 결과를 확인하지 못했습니다.",
+        `입력 내용은 그대로 남아 있습니다. 아래 연락처로 확인해 주세요. 문의 번호: ${requestId}`,
+      );
+    });
   });
-  // Fail closed if the script fails to load or initialize. Direct email stays visible.
-  button.disabled = false;
+  // Enable only after initialization. No-JS visitors keep the direct contact links.
+  setState("idle", "", "");
   form.hidden = false;
 }

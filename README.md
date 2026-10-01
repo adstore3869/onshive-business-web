@@ -2,8 +2,9 @@
 
 승인된 P-0006 콘텐츠와 P-0009 편집·생성 이미지·패럴랙스를 P-0001 원본 스타일로
 구현한 회사소개·PET/PRINT 사업·운영역량·채용·파트너십 웹사이트입니다. 이전 연혁
-페이지도 보존합니다. 현재 로컬/Git v2.2.3, 공개 사이트 v2.2.2이며 공개 배포는 별도입니다.
-정적 HTML, TypeScript, CSS와 Vite를 사용합니다. 로고·그래픽·글꼴을 자체 호스팅하며 런타임 CDN은 사용하지 않습니다.
+페이지도 보존합니다. 현재 문의 기능 검토 후보는 v2.3.0-rc.1입니다.
+안정 main은 v2.2.3, 마지막 확인한 공개 사이트는 v2.2.2이며 공개 배포는 별도입니다.
+정적 HTML, TypeScript, CSS와 Vite, 문의 API용 Cloudflare Pages Functions를 사용합니다. 로고·그래픽·글꼴을 자체 호스팅하며 런타임 CDN은 사용하지 않습니다.
 
 ## 실행
 
@@ -24,7 +25,9 @@ npm run preview
 ```
 
 배포 빌드 미리보기: http://127.0.0.1:4174
-정적 호스팅에는 `dist/`만 업로드합니다. `.env`, `.leerness/`, 회사소개서 원본과 검토 자료는 빌드에 포함되지 않습니다.
+4174는 정적 화면만 확인합니다. 서버 문의 기능은 `npm run preview:server`의 4175에서 실행합니다.
+배포 시에는 프로젝트 루트에서 Wrangler로 `dist/`와 `functions/`를 함께 반영합니다.
+`.env`, `.dev.vars`, `.leerness/`, 회사소개서 원본과 검토 자료는 빌드에 포함되지 않습니다.
 
 ## 수정 위치
 
@@ -35,7 +38,7 @@ npm run preview
 | 공통 메뉴·사업자정보 | `src/partials/header.html`, `src/partials/footer.html` |
 | 원본 스타일 / 승인된 콘텐츠 확장 | `src/styles.css`, `src/home-scenes.css`, `src/visual-pages.css` / `src/content-pages.css` |
 | 편집형 홈·사업 / 가독성 | `src/editorial-content.css` / `src/readability.css` |
-| 문의 메일 초안 / 회귀 검사 | `src/partnership-form.ts` / `scripts/verify-site.mjs` |
+| 문의 UI·검증·슬랙 API / 회귀 | `src/partnership-form.ts`, `src/inquiry.ts`, `server/inquiry.ts`, `functions/api/inquiry.ts` / `scripts/verify-site.mjs`, `scripts/verify-inquiry.mjs` |
 | 모바일 메뉴·패럴랙스·모션 설정 | `src/main.ts` |
 | 1회 등장·초점·Observer fallback / 실제 모듈 회귀 | `src/reveal.ts` / `scripts/verify-editorial.mjs` |
 | 홈 전체 배경 아스키 파도 | `src/ascii-wave.ts` |
@@ -45,7 +48,9 @@ npm run preview
 
 확인된 활동만 날짜로 표시하고 채용 여부를 추정하지 않습니다. 회사 전화번호는
 제거했으며, 사업 제휴·일반 문의·전자세금계산서 이메일을 구분합니다.
-문의 양식은 메일 앱 초안만 만들고 사이트에서 접수·저장·전송하지 않습니다.
+승인 P-0010 문의 양식은 동일 출처 서버 API를 통해 지정 슬랙 채널로만 전달합니다.
+이메일 자동 발송은 없으며 실제 사용에는 서버 Secret과 배포가 필요합니다.
+[슬랙 문의 연결·보유기간·실패 처리 안내](docs/slack-contact-setup.md)를 확인하세요.
 사업자정보는 2026-07-01 사업자등록증 기준입니다.
 
 공개 사이트: [onshive.kr](https://onshive.kr) · [Cloudflare 배포 및 가비아 도메인 연결](docs/cloudflare-domain-guide.md)
@@ -66,6 +71,10 @@ npm run preview
 - `v2.2.1`: 승인 본문18/17·보조15px와 ASCII4종
 - `v2.2.2`: 승인 생성 이미지3종·편집형 구성·패럴랙스 (현재 공개 버전)
 - `v2.2.3`: 방문자용 출처·내부 안내·생성 이미지 문구 정리 (로컬/Git, 공개 미배포)
+- `v2.3.0-rc.1`: 승인 P-0010 슬랙 전용 문의 후보 (실제 수신·공개 배포 미확인)
+
+문의 후보는 `codex/slack-contact-intake` 브랜치에서 검토하며, 서버 Secret 설정과
+실제 지정 채널 수신 확인 전에는 안정 main 또는 공개 배포 완료로 표시하지 않습니다.
 
 강제 초기화 없이 태그와 revert로 복구합니다. 자세한 절차는
 [버전 관리와 롤백](docs/versioning-and-rollback.md)을 참고하세요.

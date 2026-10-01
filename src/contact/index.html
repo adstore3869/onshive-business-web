@@ -4,7 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f5f4ef" />
-    <meta http-equiv="Content-Security-Policy" content="form-action 'none'" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="form-action 'none'; connect-src 'self'"
+    />
     <title>사업 제휴 | 온스하이브</title>
     <meta
       name="description"
@@ -51,7 +54,7 @@
           </p>
         </div>
       </section>
-      <section class="p6-form-wrap wrap">
+      <section class="p6-form-wrap wrap" id="inquiry">
         <div>
           <p class="eyebrow" style="margin-bottom: 25px">
             LET’S BUILD BUSINESS TOGETHER
@@ -73,13 +76,10 @@
           </div>
         </div>
         <form class="p6-form" id="partnership-form" hidden>
-          <p
-            class="p6-note-line"
-            style="margin: 0 0 28px; border: 0; padding: 0"
-          >
-            <strong>메일 앱에서 문의 작성</strong> · 사이트에서
-            접수·저장·전송하지 않습니다.
-          </p>
+          <div class="form-intro p6-form-intro">
+            <p>문의 내용을 남겨 주세요.</p>
+            <span>* 필수 항목</span>
+          </div>
           <div class="p6-form-grid">
             <label
               >회사명 *<input
@@ -101,9 +101,9 @@
                 maxlength="80"
                 type="tel"
                 autocomplete="tel"
-                placeholder="연락 가능한 번호" /></label
+                placeholder="연락 가능한 번호 (선택)" /></label
             ><label
-              >이메일 *<input
+              >답변받을 이메일 *<input
                 name="email"
                 maxlength="254"
                 type="email"
@@ -130,22 +130,61 @@
                 placeholder="회사와 상품 소개, 제안하는 협력 범위를 적어 주세요."
               ></textarea>
             </label>
-            <div class="full p6-attachment-note">
-              <strong>소개 자료 첨부</strong>
-              <p>
-                첨부파일은 메일 앱에서 직접 추가해 주세요. 이 사이트에서는
-                파일을 선택하거나 업로드하지 않습니다.
-              </p>
-            </div>
           </div>
+          <div class="p6-honeypot" aria-hidden="true">
+            <label
+              >웹사이트<input name="website" tabindex="-1" autocomplete="off"
+            /></label>
+          </div>
+          <label class="consent p6-consent">
+            <input type="checkbox" name="consent" required />
+            <span>문의 응대를 위한 개인정보 수집·이용에 동의합니다. *</span>
+          </label>
+          <details class="consent-detail p6-consent-detail">
+            <summary>개인정보 이용 안내</summary>
+            <dl>
+              <div>
+                <dt>이용 목적</dt>
+                <dd>사업 제휴 검토 및 문의 답변</dd>
+              </div>
+              <div>
+                <dt>수집 항목</dt>
+                <dd>
+                  회사명, 담당자명, 이메일, 제휴 유형, 제안 내용과 선택 입력한
+                  연락처
+                </dd>
+              </div>
+              <div>
+                <dt>보유기간</dt>
+                <dd>접수일로부터 3년</dd>
+              </div>
+            </dl>
+            <p>
+              입력 정보는 슬랙을 통해 온스하이브 담당자에게 전달됩니다. 동의를
+              거부할 수 있으며, 동의하지 않으면 이 양식으로 문의를 전송할 수
+              없습니다. 민감한 개인정보는 제안 내용에 적지 말아 주세요.
+            </p>
+          </details>
           <button class="button" type="submit" disabled>
-            메일 앱에서 초안 작성 <span aria-hidden="true">↗</span>
+            <span class="button-label">문의 보내기</span
+            ><span class="button-arrow" aria-hidden="true">↗</span>
           </button>
-          <p class="p6-form-status" role="status" aria-live="polite"></p>
-          <p class="p6-footnote">
-            입력 내용은 메일 앱의 초안으로만 전달됩니다. 발송과 첨부는 메일
-            앱에서 직접 진행해 주세요. 초안을 열어도 문의가 접수된 것은
-            아닙니다. 메일 앱이 없으면 scm@onshive.kr로 직접 보내 주세요.
+          <div
+            class="p6-form-status"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            hidden
+          >
+            <h3 class="status-title"></h3>
+            <p class="status-copy"></p>
+            <a class="status-contact" href="mailto:scm@onshive.kr" hidden
+              >scm@onshive.kr로 직접 문의 ↗</a
+            >
+          </div>
+          <p class="p6-footnote p6-attachment-note">
+            소개 자료는 <a href="mailto:scm@onshive.kr">scm@onshive.kr</a>로
+            별도 보내 주세요. 이 양식에서는 파일을 첨부하지 않습니다.
           </p>
         </form>
         <noscript
