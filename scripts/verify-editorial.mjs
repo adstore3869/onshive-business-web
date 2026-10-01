@@ -795,7 +795,7 @@ check("추적 출처 문서의 승인 WebP3 해시/bytes 일치, 캡처3 유지"
     );
   }
 });
-check("홈/사업 6배치에 생성 콘셉트·비실사 안내·치수·lazy 이미지", () => {
+check("홈/사업 6배치에 장면 alt·치수·lazy 유지, 생성 안내 제거", () => {
   for (const file of ["src/index.html", "src/business/index.html"]) {
     const html = source[file];
     const generated = [
@@ -809,20 +809,16 @@ check("홈/사업 6배치에 생성 콘셉트·비실사 안내·치수·lazy �
       assert.match(image, /height="1024"/);
       assert.match(image, /loading="lazy"/);
       assert.match(image, /data-image-parallax="(?:44|56|64)"/);
-      assert.match(image, /alt="[^"]*콘셉트[^"]*생성 이미지/);
+      assert.match(
+        image,
+        /alt="(?:사료가 담긴 그릇과 반려동물 목줄|용지 위에 놓인 토너와 골드 컬러 소품|반려견에게 간식을 건네는 손)"/,
+      );
     }
     const notices = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-    if (file === "src/index.html") {
-      assert.equal(
-        (notices.match(/생성 콘셉트\s*[·]\s*실제 (?:상품|고객) 아님/g) ?? [])
-          .length,
-        3,
-      );
-    } else {
-      assert.equal((notices.match(/AI 생성/g) ?? []).length, 3);
-      assert.match(notices, /실제 고객·자사몰 화면이 아닙니다/);
-      assert.equal((notices.match(/실제 상품 사진 아님/g) ?? []).length, 2);
-    }
+    assert.doesNotMatch(
+      notices,
+      /AI 생성|생성 콘셉트|실제 (?:상품|고객).*아님/,
+    );
   }
 });
 check("콘텐츠 근거 범위/기간·실제 링크 유지, 시안 UI 이관 없음", () => {
@@ -832,10 +828,7 @@ check("콘텐츠 근거 범위/기간·실제 링크 유지, 시안 UI 이관 �
   const business = source["src/business/index.html"]
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ");
-  assert.match(
-    home,
-    /13개 가이드 · 5개 주제 카테고리.*2026 회사소개서 p35.*멍수무강 허브 범위/,
-  );
+  assert.match(home, /멍수무강 콘텐츠 허브 · 13개 가이드 · 5개 주제 카테고리/);
   assert.match(business, /15회.*2026년 1–6월 박람회/);
   assert.match(business, /자사몰 포함/);
   assert.match(business, /멍수무강 상품 범위/);

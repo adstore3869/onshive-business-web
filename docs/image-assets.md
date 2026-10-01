@@ -2,7 +2,7 @@
 
 Created 2026-09-25 with the built-in image_gen tool. Original artifacts copied to output/imagegen; WebP copies use format compression only, without content edits. Concept art, not actual offices/products/client work.
 
-P-0004 approved 2026-09-25. Preserved production copies: `public/images/brand-connections.webp` (115,010 bytes) and `public/images/creative-materials.webp` (91,240 bytes). Both preserve the generated 1536×1024 dimensions. At that release the connection artwork appeared on home/about, and materials on home/business/careers. P-0006 now uses the connection artwork only on Company as explicitly labeled brand concept art; the unused materials asset is retained for rollback/reuse. Original prompts below are preserved for future revisions.
+P-0004 approved 2026-09-25. Preserved production copies: `public/images/brand-connections.webp` (115,010 bytes) and `public/images/creative-materials.webp` (91,240 bytes). Both preserve the generated 1536×1024 dimensions. At that release the connection artwork appeared on home/about, and materials on home/business/careers. P-0006 placed the connection artwork only on Company with a brand-concept label. In v2.2.3 the artwork remains there, with a neutral scene alt instead of visitor-facing generation disclaimers; the unused materials asset is retained for rollback/reuse. Original prompts below are preserved for future revisions.
 
 ## P-0006 / v2.2.0 — provided operational captures
 
@@ -35,8 +35,12 @@ Created with built-in image_gen and approved by the user on 2026-09-30, includin
 the combined editorial/parallax preview. These are generic category concepts, not
 actual Moguchon products, PRINT SKUs, company customers, employees or locations.
 The user supplied no new actual product photograph to preserve in this request.
-Each of the six placements visibly states “생성 콘셉트 · 실제 상품/고객 아님” or
-“AI 생성 · 실제 상품 사진 아님”; the customer image is not presented as a testimonial or event proof.
+At v2.2.2, the six placements displayed generation/non-product disclaimers. The user
+requested their removal on 2026-10-01; v2.2.3 keeps neutral scene alt text and useful
+home category captions instead. Generated classification, original prompts, approvals
+and hashes remain in internal records. The customer image is not presented as a
+testimonial or event proof, and none of the generic images is newly attributed to a
+real company product, customer or location.
 Existing deck facts and their dates/scopes are unchanged and are not derived from imagery.
 
 | Public copy | Original generator artifact ID | Dimensions / bytes | Placement |

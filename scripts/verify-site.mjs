@@ -104,11 +104,14 @@ probe(
   () => {
     const home = compact(source["index.html"]);
     assert.match(home, /2026년 1–6월 참가 실적/);
-    assert.match(compact(source["business/index.html"]), /자사몰 포함 10개 채널/);
+    assert.match(
+      compact(source["business/index.html"]),
+      /자사몰 포함 10개 채널/,
+    );
     assert.match(home, /멍수무강 상품 포트폴리오/);
     const careers = compact(source["careers/index.html"]);
     assert.match(careers, /이 페이지에 게시된 채용 공고는 없습니다/);
-    assert.match(careers, /현재 모집 중인 직무를 의미하지 않습니다/);
+    assert.match(careers, /모집 직무·근무조건·지원 방법은 공고가 게시될 때/);
     assert.ok(!careers.includes("현재 채용 없음"));
     for (const html of Object.values(source))
       assert.ok(
@@ -263,11 +266,111 @@ probe(
     assert.ok(fs.existsSync(path.join(root, "dist/404.html")));
   },
 );
-probe("Package and lock use the same 2.2.2 version", () => {
-  assert.equal(JSON.parse(read("package.json")).version, "2.2.2");
+probe(
+  "Seven source and built pages omit source, internal and AI image notes",
+  () => {
+    const unwanted =
+      /회사소개서|COMPANY (?:DECK|PROFILE)|제공(?:된)? 자료|AI 생성|생성 콘셉트|콘셉트 생성 이미지|실제 (?:판매 )?(?:상품|제품|고객|공간).*?(?:아님|아닙니다|공개하지)|대면 미팅|출처:|자료에 기재|파트너 보호|공장 소유를 의미|성과를 보장/;
+    for (const collection of [source, markup])
+      for (const [file, html] of Object.entries(collection))
+        assert.doesNotMatch(compact(html), unwanted, file);
+  },
+);
+probe("Removed meta notes leave no empty note or caption wrappers", () => {
+  for (const [file, html] of Object.entries(markup)) {
+    // The existing live region is populated by form validation/draft status.
+    const withoutLiveStatus = html.replace(
+      /<p class="p6-form-status" role="status" aria-live="polite"><\/p>/g,
+      "",
+    );
+    assert.doesNotMatch(
+      withoutLiveStatus,
+      /<(p|figcaption|small)\b[^>]*>\s*<\/\1>/,
+      file,
+    );
+    assert.ok(!html.includes('class="editorial-source-note"'), file);
+  }
+  assert.ok(
+    !markup["business/index.html"].includes('class="p6-image-caption"'),
+  );
+  assert.equal(
+    (markup["index.html"].match(/class="editorial-caption"/g) || []).length,
+    3,
+  );
+});
+probe(
+  "Useful scopes, periods and manufacturing partnership remain without citations",
+  () => {
+    for (const file of [
+      "index.html",
+      "about/index.html",
+      "history/index.html",
+    ]) {
+      const text = compact(markup[file]);
+      assert.match(text, /멍수무강/);
+      assert.match(text, /자사몰/);
+      assert.match(text, /2026년 1–6월/);
+      for (const number of [10, 30, 15])
+        assert.match(text, new RegExp(`<strong>${number}<small>`));
+    }
+    for (const file of ["index.html", "business/index.html"])
+      assert.match(
+        compact(markup[file]),
+        /멍수무강 콘텐츠 허브 · 13개 가이드 · 5개 주제 카테고리/,
+      );
+    assert.match(
+      compact(markup["business/index.html"]),
+      /외부 제조 파트너와 협력해 상품을 공급합니다/,
+    );
+    assert.match(
+      compact(markup["business/index.html"]),
+      /목우촌과의 브랜드 사용 계약/,
+    );
+  },
+);
+probe(
+  "Existing images have neutral scene descriptions, not invented product attribution",
+  () => {
+    const descriptions = new Map([
+      ["pet-commerce", "사료가 담긴 그릇과 반려동물 목줄"],
+      ["print-commerce", "용지 위에 놓인 토너와 골드 컬러 소품"],
+      ["pet-customer", "반려견에게 간식을 건네는 손"],
+    ]);
+    for (const file of ["index.html", "business/index.html"])
+      for (const [name, alt] of descriptions) {
+        const image = [...markup[file].matchAll(/<img\b[^>]*>/g)].find(
+          ([tag]) => tag.includes(`/images/commerce/${name}.webp`),
+        );
+        assert.ok(image, `${file}: ${name}`);
+        assert.ok(image[0].includes(`alt="${alt}"`));
+      }
+    const provenance = JSON.parse(read("docs/image-provenance-p0009.json"));
+    assert.equal(provenance.length, 3);
+    assert.ok(
+      provenance.every((image) =>
+        image.classification.startsWith("Generated category concept"),
+      ),
+    );
+  },
+);
+probe(
+  "Useful contact and hiring guidance remains while redundant qualification is removed",
+  () => {
+    const contact = compact(markup["contact/index.html"]);
+    assert.match(contact, /사이트에서 접수·저장·전송하지 않습니다/);
+    assert.match(contact, /첨부파일은 메일 앱에서 직접 추가/);
+    assert.match(contact, /초안을 열어도 문의가 접수된 것은 아닙니다/);
+    assert.match(
+      compact(markup["careers/index.html"]),
+      /이 페이지에 게시된 채용 공고는 없습니다/,
+    );
+  },
+);
+probe("Package and lock use the same 2.2.3 version", () => {
+  assert.equal(JSON.parse(read("package.json")).version, "2.2.3");
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(lock.version, "2.2.2");
-  assert.equal(lock.packages[""].version, "2.2.2");
+  assert.equal(lock.version, "2.2.3");
+  assert.equal(lock.packages[""].version, "2.2.3");
 });
 
 // Compile the actual production module, not a copied implementation.
